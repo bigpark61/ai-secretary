@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>제조 데이터 AI 비서</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="제조 데이터 AI 비서 홈">
+          <span class="brand-mark">M</span>
+          <span><strong>Manufacture</strong><small>DATA ASSISTANT</small></span>
+        </a>
+        <div class="workspace-label">WORKSPACE</div>
+        <nav class="navigation" aria-label="주요 메뉴">
+          <button class="nav-item active" data-view="chat"><span>✳</span> AI 비서</button>
+          <button class="nav-item" data-view="data"><span>▦</span> 데이터 관리</button>
+          <button class="nav-item" data-view="history"><span>◷</span> 대화 기록</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="connection-indicator"><i></i><span id="connection-status">연결 확인 중</span></div>
+          <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API 문서 열기 ↗</a>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div><span class="eyebrow">MANUFACTURING INSIGHTS</span><h1 id="page-title">AI 데이터 비서</h1></div>
+          <button id="refresh-button" class="icon-button" type="button" title="새로고침" aria-label="새로고침">↻</button>
+        </header>
+        <div id="notice" class="notice" role="status" hidden></div>
+
+        <section class="view active" id="chat-view">
+          <div class="summary-strip" id="summary-strip" aria-live="polite"></div>
+          <div class="chat-panel">
+            <div class="chat-heading">
+              <div><span class="assistant-avatar">✳</span><div><strong>제조 분석 어시스턴트</strong><small>데이터를 바탕으로 답변합니다</small></div></div>
+              <button id="new-chat-button" class="text-button" type="button">＋ 새 대화</button>
+            </div>
+            <div id="chat-messages" class="chat-messages" aria-live="polite">
+              <div class="welcome-card">
+                <span class="welcome-icon">✳</span>
+                <h2>무엇을 분석해 볼까요?</h2>
+                <p>생산량, 불량률, 에너지 사용량 등 제조 데이터를 질문해 보세요.</p>
+                <div class="suggestions">
+                  <button type="button" class="suggestion">전체 데이터의 평균 불량률은?</button>
+                  <button type="button" class="suggestion">에너지 효율이 가장 좋은 운영 방법은?</button>
+                  <button type="button" class="suggestion">생산량과 에너지 소비를 요약해줘</button>
+                </div>
+              </div>
+            </div>
+            <form id="chat-form" class="chat-form">
+              <label class="sr-only" for="chat-input">질문 입력</label>
+              <textarea id="chat-input" rows="1" maxlength="4000" placeholder="제조 데이터에 대해 질문하세요..." required></textarea>
+              <button id="send-button" type="submit" aria-label="메시지 전송">↑</button>
+              <small>AI 답변은 참고용이며 원본 데이터에 날짜 정보는 포함되어 있지 않습니다.</small>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="data-view">
+          <div class="section-intro"><div><h2>제조 데이터</h2><p>Firestore에 저장된 생산 공정 레코드를 관리합니다.</p></div><span id="data-count" class="count-badge">0 records</span></div>
+          <form id="data-form" class="data-form">
+            <div class="form-heading"><strong>새 레코드 추가</strong><span>필수 항목을 입력하세요</span></div>
+            <div class="form-grid">
+              <label>생산량<input name="production_volume" type="number" min="0" step="any" required></label>
+              <label>불량률 (%)<input name="defect_rate" type="number" min="0" max="100" step="any" required></label>
+              <label>에너지 소비량<input name="energy_consumption" type="number" min="0" step="any" required></label>
+              <label>에너지 효율<input name="energy_efficiency" type="number" min="0" step="any" required></label>
+              <label>가동 중단율 (%)<input name="downtime_percentage" type="number" min="0" max="100" step="any" required></label>
+              <label>정비 시간<input name="maintenance_hours" type="number" min="0" step="any" required></label>
+              <label>단위당 에너지<input name="energy_per_unit" type="number" min="0" step="any" required></label>
+            </div>
+            <button class="primary-button" type="submit">레코드 추가</button>
+          </form>
+          <div class="table-panel">
+            <div class="table-heading"><strong>데이터 목록</strong><span>삭제는 Firestore에서 즉시 반영됩니다.</span></div>
+            <div class="table-scroll"><table><thead><tr><th>Record</th><th>생산량</th><th>불량률</th><th>에너지 소비</th><th>효율</th><th>중단율</th><th>정비 시간</th><th></th></tr></thead><tbody id="data-rows"></tbody></table></div>
+            <p id="empty-data" class="empty-state" hidden>등록된 데이터가 없습니다.</p>
+          </div>
+        </section>
+
+        <section class="view" id="history-view">
+          <div class="section-intro"><div><h2>대화 기록</h2><p>저장된 대화를 불러오거나 삭제할 수 있습니다.</p></div></div>
+          <div id="conversation-list" class="conversation-list"></div>
+          <p id="empty-history" class="empty-state" hidden>저장된 대화가 없습니다. AI 비서와 첫 대화를 시작해 보세요.</p>
+        </section>
+
+        <footer class="footer-note">제조 공정 데이터 분석 · Firestore 저장</footer>
+      </main>
+    </div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
