@@ -33,6 +33,7 @@ button{cursor:pointer}
 .chat-panel,.table-panel,.data-form{background:#fff;border:1px solid var(--line);border-radius:13px}
 .chat-panel{min-height:calc(100vh - 290px);display:flex;flex-direction:column}
 .chat-heading{height:66px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 21px}
+.chat-actions{display:flex;align-items:center;gap:12px}
 .chat-heading>div{display:flex;align-items:center;gap:10px}.assistant-avatar{width:33px;height:33px;background:#edf2ff;color:var(--blue);border-radius:10px;display:grid;place-items:center}
 .chat-heading strong,.chat-heading small{display:block}.chat-heading strong{font-size:12px}.chat-heading small{color:var(--muted);font-size:10px;margin-top:3px}
 .text-button{border:0;background:none;color:var(--blue);font-weight:600;font-size:11px}

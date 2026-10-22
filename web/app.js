@@ -159,6 +159,46 @@ function renderConversation(messages) {
   messages.forEach((message) => appendMessage(message.role, message.content));
 }
 
+function downloadChat() {
+  const messages = [...document.querySelectorAll("#chat-messages .message")].map((element) => ({
+    role: element.classList.contains("user") ? "사용자" : "AI 비서",
+    content: element.querySelector(".message-bubble")?.textContent.trim() || "",
+  })).filter((message) => message.content);
+
+  if (messages.length === 0) {
+    showNotice("저장할 대화 내용이 없습니다.", true);
+    return;
+  }
+
+  const now = new Date();
+  const timestamp = now.toLocaleString("ko-KR");
+  const fileTimestamp = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+    "-",
+    String(now.getHours()).padStart(2, "0"),
+    String(now.getMinutes()).padStart(2, "0"),
+    String(now.getSeconds()).padStart(2, "0"),
+  ].join("");
+  const content = [
+    "제조 데이터 AI 비서 대화 기록",
+    `저장 일시: ${timestamp}`,
+    "",
+    ...messages.flatMap((message) => [`[${message.role}]`, message.content, ""]),
+  ].join("\r\n");
+  const blob = new Blob(["\uFEFF", content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `manufacturing-chat-${fileTimestamp}.txt`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showNotice("현재 대화를 텍스트 파일로 저장했습니다.");
+}
+
 async function sendMessage(text) {
   if (state.busy) return;
   state.busy = true;
@@ -280,6 +320,7 @@ $("#new-chat-button").addEventListener("click", () => {
       <p>생산량, 불량률, 에너지 사용량 등 제조 데이터를 질문해 보세요.</p>
     </div>`;
 });
+$("#download-chat-button").addEventListener("click", downloadChat);
 $("#refresh-button").addEventListener("click", () => refreshAll());
 $("#data-form").addEventListener("submit", async (event) => {
   event.preventDefault();
